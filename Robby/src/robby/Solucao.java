@@ -17,7 +17,6 @@ public class Solucao implements Comparable<Solucao> {
             Tabuleiro t = Tabuleiro.novoAleatorio();
             pontuacoes[i] = Simulacao.pontuacaoNoTabuleiro(cromossomo, t);
         }
-
         return media(pontuacoes);
     }
 
@@ -47,6 +46,14 @@ public class Solucao implements Comparable<Solucao> {
 
     public double getFo() {
         return fo;
+    }
+
+    public String getCromossomoStr() {
+        StringBuilder str = new StringBuilder();
+        for (int i : this.cromossomo) {
+            str.append(i);
+        }
+        return str.toString();
     }
 
 }

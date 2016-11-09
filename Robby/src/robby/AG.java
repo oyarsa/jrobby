@@ -6,11 +6,30 @@ import java.util.Random;
 
 public class AG {
 
+    enum Mutacao {
+        VIZINHANCA
+    }
+
+    enum Cruzamento {
+        UM_PONTO,
+        MULTIPLOS_PONTOS,
+        UNIFORME,
+        SEGMENTADO
+    }
+
+    enum Selecao {
+        ROLETA,
+        TORNEIO
+    }
+
     private final double taxaMutacao;
     private final int tamanhoPopulacao;
     private final int numeroGeracoes;
     private final int tamanhoTorneio;
     private final int numeroCruzamentos;
+    private final Mutacao operadorMutacao;
+    private final Cruzamento operadorCruzamento;
+    private final Selecao metodoSelecao;
     private final Random rng;
 
     public AG(double taxaCruzamento, double taxaMutacao, int tamanhoPopulacao,
@@ -21,13 +40,17 @@ public class AG {
         this.tamanhoTorneio = tamanhoTorneio;
         this.numeroCruzamentos = (int) (taxaCruzamento * tamanhoPopulacao) / 2;
         this.rng = new Random();
+
+        this.operadorMutacao = Mutacao.VIZINHANCA;
+        this.operadorCruzamento = Cruzamento.UM_PONTO;
+        this.metodoSelecao = Selecao.TORNEIO;
     }
 
     public Solucao resolver() {
         Solucao[] populacao = gerarPopulacaoAleatoria();
 
         for (int i = 0; i < numeroGeracoes; i++) {
-            System.out.println("Geracao " + i + " FO: " + populacao[0].getFo());
+            System.out.println("Geracao " + (i + 1) + " FO: " + populacao[0].getFo());
 
             Solucao[][] pais = selecionar(populacao);
             int[][] filhos = cruzamento(pais);
@@ -64,8 +87,14 @@ public class AG {
     }
 
     private Solucao[][] selecionar(Solucao[] populacao) {
-        //return selecaoRoleta(populacao);
-        return selecaoTorneio(populacao);
+        switch (metodoSelecao) {
+            case ROLETA:
+                return selecaoRoleta(populacao);
+            case TORNEIO:
+                return selecaoTorneio(populacao);
+            default:
+                return selecaoTorneio(populacao);
+        }
     }
 
     private Solucao[][] selecaoRoleta(Solucao[] populacao) {
@@ -81,13 +110,14 @@ public class AG {
     }
 
     private int[][] cruzamento(Solucao[][] pais) {
-        int[][] filhos = new int[this.numeroCruzamentos][Definicoes.TAMANHO_CROMOSSOMO];
+        int[][] filhos = new int[this.numeroCruzamentos * 2][Definicoes.TAMANHO_CROMOSSOMO];
 
-        for (int i = 0; i < this.numeroCruzamentos; i += 2) {
+        for (int i = 0; i < this.numeroCruzamentos; i++) {
             Solucao pai1 = pais[i][0];
             Solucao pai2 = pais[i][1];
-            filhos[i] = cruzamentoUmPonto(pai1, pai2);
-            filhos[i + 1] = cruzamentoUmPonto(pai2, pai1);
+            int[][] prole = cruzamento(pai1, pai2);
+            filhos[2 * i] = prole[0];
+            filhos[2 * i + 1] = prole[1];
         }
 
         return filhos;
@@ -96,7 +126,7 @@ public class AG {
     private void mutacao(int[][] filhos) {
         for (int i = 0; i < filhos.length; i++) {
             if (rng.nextDouble() < this.taxaMutacao) {
-                substituicaoAleatoria(filhos[i]);
+                mutacao(filhos[i]);
             }
         }
     }
@@ -140,22 +170,39 @@ public class AG {
         return cromossomo;
     }
 
-    private int[] cruzamentoUmPonto(Solucao pai1, Solucao pai2) {
-        int[] filho = new int[Definicoes.TAMANHO_CROMOSSOMO];
+    private int[][] cruzamentoUmPonto(Solucao pai1, Solucao pai2) {
+        int[][] filhos = new int[2][Definicoes.TAMANHO_CROMOSSOMO];
         int pontoCruzamento = rng.nextInt(Definicoes.TAMANHO_CROMOSSOMO);
 
         int i = 0;
         for (; i < pontoCruzamento; i++) {
-            filho[i] = pai1.getCromossomo()[i];
+            filhos[0][i] = pai1.getCromossomo()[i];
+            filhos[1][i] = pai2.getCromossomo()[i];
         }
         for (; i < Definicoes.TAMANHO_CROMOSSOMO; i++) {
-            filho[i] = pai2.getCromossomo()[i];
+            filhos[0][i] = pai2.getCromossomo()[i];
+            filhos[1][i] = pai1.getCromossomo()[i];
         }
 
-        return filho;
+        return filhos;
     }
 
-    private void substituicaoAleatoria(int[] filho) {
+    // TODO
+    private int[][] cruzamentoMultiplosPontos(Solucao pai1, Solucao pai2) {
+        throw new UnsupportedOperationException();
+    }
+
+    // TODO
+    private int[][] cruzamentoSegmentado(Solucao pai1, Solucao pai2) {
+        throw new UnsupportedOperationException();
+    }
+
+    // TODO
+    private int[][] cruzamentoUniforme(Solucao pai1, Solucao pai2) {
+        throw new UnsupportedOperationException();
+    }
+
+    private void vizinhanca(int[] filho) {
         int idx = rng.nextInt(Definicoes.TAMANHO_CROMOSSOMO);
         filho[idx] = rng.nextInt(Definicoes.NUMERO_MOVIMENTOS);
     }
@@ -205,5 +252,24 @@ public class AG {
             }
         }
         return melhor;
+    }
+
+    private int[][] cruzamento(Solucao pai1, Solucao pai2) {
+        switch (this.operadorCruzamento) {
+            case MULTIPLOS_PONTOS:
+            case SEGMENTADO:
+            case UNIFORME:
+            case UM_PONTO:
+                return cruzamentoUmPonto(pai1, pai2);
+            default:
+                return cruzamentoUmPonto(pai1, pai2);
+        }
+    }
+
+    private void mutacao(int[] filho) {
+        switch (operadorMutacao) {
+            case VIZINHANCA:
+                vizinhanca(filho);
+        }
     }
 }
