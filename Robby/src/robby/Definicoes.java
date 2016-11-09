@@ -24,7 +24,7 @@ public class Definicoes {
     public final static int PENALIDADE_PAREDE = 1;
     public final static int PONTUACAO_PEGAR = 1;
 
-    public final static int NUMERO_SESSOES = 5;
+    public final static int NUMERO_SESSOES = 200;
     public final static int NUMERO_ACOES = 200;
 
 }

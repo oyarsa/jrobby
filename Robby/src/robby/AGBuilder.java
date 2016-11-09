@@ -5,7 +5,7 @@ public class AGBuilder {
     private double taxaCruzamento = 1;
     private double taxaMutacao = 0.005;
     private int tamanhoPopulacao = 200;
-    private int numeroGeracoes = 50;
+    private int numeroGeracoes = 500;
     private int tamanhoTorneio = 4;
 
     public AGBuilder() {
