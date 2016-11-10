@@ -1,5 +1,7 @@
 package robby;
 
+import java.util.Arrays;
+
 public class Solucao implements Comparable<Solucao> {
 
     private final Cromossomo cromossomo;
@@ -21,13 +23,7 @@ public class Solucao implements Comparable<Solucao> {
     }
 
     private static double media(int[] pontuacoes) {
-        double soma = 0.0;
-
-        for (int i = 0; i < pontuacoes.length; i++) {
-            soma += pontuacoes[i];
-        }
-
-        return soma / pontuacoes.length;
+        return Arrays.stream(pontuacoes).sum() / (double) pontuacoes.length;
     }
 
     @Override
@@ -51,7 +47,7 @@ public class Solucao implements Comparable<Solucao> {
     public String getCromossomoStr() {
         StringBuilder str = new StringBuilder();
         for (int i = 0; i < Cromossomo.TAMANHO; i++) {
-            str.append(this.cromossomo.get(i));
+            str.append(this.cromossomo.at(i));
         }
         return str.toString();
     }

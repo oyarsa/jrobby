@@ -7,18 +7,16 @@ package robby;
 public class Robby {
 
     private static void testeAvaliacao() {
-        String cstr = "521123150102162505462445362161512416405641030111433633311322452612323432550155666004306132566034020263463655612445415462241200230422242154212444621340640112142213125231012642626350161333226311052241164344305166665222366600110121044055230544322";
+        String cstr = "104435116432412221536243336424324453015456455161456105445041446544651422005215324355356621212450024522444201455100103260215033131435002646604353015650355653252122354115250256210454442442326415650243226434450311661031552554325163401135422533460";
 
-        Cromossomo cromossomo = new Cromossomo();
-        for (int i = 0; i < cstr.length(); i++) {
-            cromossomo.set(i, cstr.charAt(i) - '0');
-        }
+        int[] genes = cstr.chars().map(x -> x - '0').toArray();
+        Cromossomo cromossomo = new Cromossomo(genes);
         Solucao s2 = new Solucao(cromossomo);
         System.out.println("FO: " + s2.getFo());
     }
 
     private static void executarAg() {
-        AG ag = new AGBuilder().setTaxaCruzamento(0.9).createAG();
+        AG ag = new AGBuilder().setTaxaCruzamento(1).createAG();
         Solucao s = ag.resolver();
         System.out.println("FO: " + s.getFo());
         System.out.println("Cromossomo: " + s.getCromossomoStr());
@@ -28,8 +26,8 @@ public class Robby {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        testeAvaliacao();
-        //executarAg();
+        //testeAvaliacao();
+        executarAg();
     }
 
 }

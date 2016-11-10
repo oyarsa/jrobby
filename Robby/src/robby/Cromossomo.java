@@ -10,7 +10,11 @@ public class Cromossomo {
         this.genes = new int[TAMANHO];
     }
 
-    public int get(int i) {
+    Cromossomo(int[] genes) {
+        this.genes = genes;
+    }
+
+    public int at(int i) {
         return this.genes[i];
     }
 

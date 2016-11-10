@@ -49,14 +49,10 @@ public class Simulacao {
 
         for (int i = 0; i < Definicoes.NUMERO_ACOES; i++) {
             int cenario = getCenario(atual.x, atual.y, t);
-            int movimento = cromossomo.get(cenario);
-            //System.out.println(i + " : Cenario " + cenario + " estratégia:"
-            //+ estrategia + " posicao x " + atual.x + " e y " + atual.y);
+            int movimento = cromossomo.at(cenario);
             atual = proximoEstado(atual, movimento, t);
-            //System.out.println("Pontuacao: " + atual.pontuacao);
         }
 
-        //System.out.println("------------------------\n");
         return atual.pontuacao;
     }
 

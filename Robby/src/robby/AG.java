@@ -2,22 +2,25 @@ package robby;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Random;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 public class AG {
 
-    enum Mutacao {
+    public enum Mutacao {
         VIZINHANCA
     }
 
-    enum Cruzamento {
+    public enum Cruzamento {
         UM_PONTO,
         MULTIPLOS_PONTOS,
         UNIFORME,
         SEGMENTADO
     }
 
-    enum Selecao {
+    public enum Selecao {
         ROLETA,
         TORNEIO
     }
@@ -33,7 +36,8 @@ public class AG {
     private final Random rng;
 
     public AG(double taxaCruzamento, double taxaMutacao, int tamanhoPopulacao,
-            int numeroGeracoes, int tamanhoTorneio) {
+            int numeroGeracoes, int tamanhoTorneio, Mutacao operadorMutacao,
+            Cruzamento operadorCruzamento, Selecao metodoSelecao) {
         this.taxaMutacao = taxaMutacao;
         this.tamanhoPopulacao = tamanhoPopulacao;
         this.numeroGeracoes = numeroGeracoes;
@@ -41,38 +45,30 @@ public class AG {
         this.numeroCruzamentos = (int) (taxaCruzamento * tamanhoPopulacao) / 2;
         this.rng = new Random();
 
-        this.operadorMutacao = Mutacao.VIZINHANCA;
-        this.operadorCruzamento = Cruzamento.UM_PONTO;
-        this.metodoSelecao = Selecao.TORNEIO;
+        this.operadorMutacao = operadorMutacao;
+        this.operadorCruzamento = operadorCruzamento;
+        this.metodoSelecao = metodoSelecao;
     }
 
     public Solucao resolver() {
-        Solucao[] populacao = gerarPopulacaoAleatoria();
+        Solucao[] populacao = avaliar(gerarPopulacaoAleatoria());
 
         for (int i = 0; i < numeroGeracoes; i++) {
-            System.out.println("Geracao " + (i + 1) + " FO: " + populacao[0].getFo());
-
             Solucao[][] pais = selecionar(populacao);
             Cromossomo[] filhos = cruzamento(pais);
             mutacao(filhos);
             Solucao[] avaliados = avaliar(filhos);
             populacao = proximaGeracao(populacao, avaliados);
+            System.out.println("Geracao " + (i + 1) + " FO: " + populacao[0].getFo());
         }
 
         return populacao[0];
     }
 
-    private Solucao[] gerarPopulacaoAleatoria() {
-        Cromossomo[] cromossomos = new Cromossomo[this.tamanhoPopulacao];
-
-        for (int i = 0; i < this.tamanhoPopulacao; i++) {
-            cromossomos[i] = gerarSolucaoAleatoria();
-        }
-
-        Solucao[] populacao = avaliar(cromossomos);
-        Arrays.sort(populacao, Collections.reverseOrder());
-
-        return populacao;
+    private Cromossomo[] gerarPopulacaoAleatoria() {
+        return Stream.generate(this::gerarSolucaoAleatoria)
+                .limit(this.tamanhoPopulacao)
+                .toArray(Cromossomo[]::new);
     }
 
     private Solucao[][] selecaoTorneio(Solucao[] populacao) {
@@ -91,7 +87,6 @@ public class AG {
             case ROLETA:
                 return selecaoRoleta(populacao);
             case TORNEIO:
-                return selecaoTorneio(populacao);
             default:
                 return selecaoTorneio(populacao);
         }
@@ -111,13 +106,13 @@ public class AG {
 
     private Cromossomo[] cruzamento(Solucao[][] pais) {
         Cromossomo[] filhos = new Cromossomo[this.numeroCruzamentos * 2];
+        int i = 0;
 
-        for (int i = 0; i < this.numeroCruzamentos; i++) {
-            Solucao pai1 = pais[i][0];
-            Solucao pai2 = pais[i][1];
-            Cromossomo[] prole = cruzamento(pai1, pai2);
-            filhos[2 * i] = prole[0];
-            filhos[2 * i + 1] = prole[1];
+        for (Solucao[] par : pais) {
+            Cromossomo[] prole = cruzamento(par[0], par[1]);
+            filhos[i] = prole[0];
+            filhos[i + 1] = prole[1];
+            i += 2;
         }
 
         return filhos;
@@ -132,28 +127,17 @@ public class AG {
     }
 
     private Solucao[] avaliar(Cromossomo[] cromossomos) {
-        Solucao[] avaliados = new Solucao[cromossomos.length];
-
-        for (int i = 0; i < cromossomos.length; i++) {
-            avaliados[i] = new Solucao(cromossomos[i]);
-        }
-
-        return avaliados;
+        return Arrays.stream(cromossomos)
+                .map(Solucao::new)
+                .toArray(Solucao[]::new);
     }
 
     private Solucao[] proximaGeracao(Solucao[] geracaoAnterior, Solucao[] filhos) {
         Solucao[] proxima = new Solucao[this.tamanhoPopulacao];
-        int numeroFilhos = filhos.length;
+        int numeroAncioes = this.tamanhoPopulacao - filhos.length;
 
-        int j = 0;
-        for (int i = 0; i < this.tamanhoPopulacao - numeroFilhos; i++) {
-            proxima[j] = geracaoAnterior[i];
-            j++;
-        }
-        for (int i = 0; i < numeroFilhos; i++) {
-            proxima[j] = filhos[i];
-            j++;
-        }
+        System.arraycopy(geracaoAnterior, 0, proxima, 0, numeroAncioes);
+        System.arraycopy(filhos, 0, proxima, numeroAncioes, filhos.length);
 
         Arrays.sort(proxima, Collections.reverseOrder());
 
@@ -161,30 +145,28 @@ public class AG {
     }
 
     private Cromossomo gerarSolucaoAleatoria() {
-        Cromossomo cromossomo = new Cromossomo();
-
-        for (int i = 0; i < Cromossomo.TAMANHO; i++) {
-            cromossomo.set(i, rng.nextInt(Movimentos.NUMERO_MOVIMENTOS));
-        }
-
-        return cromossomo;
+        int[] genes = IntStream.generate(() -> rng.nextInt(Movimentos.NUMERO_MOVIMENTOS))
+                .limit(Cromossomo.TAMANHO)
+                .toArray();
+        return new Cromossomo(genes);
     }
 
     private Cromossomo[] cruzamentoUmPonto(Cromossomo pai1, Cromossomo pai2) {
-        Cromossomo[] filhos = new Cromossomo[2];
+        Cromossomo filho1 = new Cromossomo();
+        Cromossomo filho2 = new Cromossomo();
         int pontoCruzamento = rng.nextInt(Cromossomo.TAMANHO);
 
         int i = 0;
         for (; i < pontoCruzamento; i++) {
-            filhos[0].set(i, pai1.get(i));
-            filhos[1].set(i, pai2.get(i));
+            filho1.set(i, pai1.at(i));
+            filho2.set(i, pai2.at(i));
         }
         for (; i < Cromossomo.TAMANHO; i++) {
-            filhos[0].set(i, pai2.get(i));
-            filhos[1].set(i, pai1.get(i));
+            filho1.set(i, pai2.at(i));
+            filho2.set(i, pai1.at(i));
         }
 
-        return filhos;
+        return new Cromossomo[]{filho1, filho2};
     }
 
     // TODO
@@ -234,24 +216,16 @@ public class AG {
 
     private double[] normalizarPopulacao(Solucao[] populacao) {
         double min = populacao[populacao.length - 1].getFo();
-        double[] aptidoes = new double[this.tamanhoPopulacao];
-
-        for (int i = 0; i < this.tamanhoPopulacao; i++) {
-            aptidoes[i] += -min;
-        }
-
-        return aptidoes;
+        return Arrays.stream(populacao)
+                .mapToDouble(s -> s.getFo() - min + 1)
+                .toArray();
     }
 
     private Solucao obterIndividuoTorneio(Solucao[] populacao) {
-        Solucao melhor = populacao[rng.nextInt(this.tamanhoPopulacao)];
-        for (int i = 1; i < this.tamanhoTorneio; i++) {
-            Solucao atual = populacao[rng.nextInt(this.tamanhoPopulacao)];
-            if (atual.compareTo(melhor) > 0) {
-                melhor = atual;
-            }
-        }
-        return melhor;
+        return Stream.generate(() -> populacao[rng.nextInt(this.tamanhoPopulacao)])
+                .limit(this.tamanhoTorneio)
+                .max(Comparator.naturalOrder())
+                .get();
     }
 
     private Cromossomo[] cruzamento(Solucao pai1, Solucao pai2) {
@@ -260,7 +234,6 @@ public class AG {
             case SEGMENTADO:
             case UNIFORME:
             case UM_PONTO:
-                return cruzamentoUmPonto(pai1.getCromossomo(), pai2.getCromossomo());
             default:
                 return cruzamentoUmPonto(pai1.getCromossomo(), pai2.getCromossomo());
         }
