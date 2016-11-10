@@ -7,6 +7,8 @@ public class AGBuilder {
     private int tamanhoPopulacao = 200;
     private int numeroGeracoes = 500;
     private int tamanhoTorneio = 4;
+    private int numeroPontosCruzamento = 2;
+    private double taxaTrocaSegmento = 0.2;
     private AG.Mutacao operadorMutacao = AG.Mutacao.VIZINHANCA;
     private AG.Cruzamento operadorCruzamento = AG.Cruzamento.UM_PONTO;
     private AG.Selecao metodoSelecao = AG.Selecao.TORNEIO;
@@ -39,6 +41,16 @@ public class AGBuilder {
         return this;
     }
 
+    public AGBuilder setNumeroPontosCruzamento(int numeroPontosCruzamento) {
+        this.numeroPontosCruzamento = numeroPontosCruzamento;
+        return this;
+    }
+
+    public AGBuilder setTaxaTrocaSegmento(double taxaTrocaSegmento) {
+        this.taxaTrocaSegmento = taxaTrocaSegmento;
+        return this;
+    }
+
     public AGBuilder setOperadorMutacao(AG.Mutacao operadorMutacao) {
         this.operadorMutacao = operadorMutacao;
         return this;
@@ -56,7 +68,8 @@ public class AGBuilder {
 
     public AG createAG() {
         return new AG(taxaCruzamento, taxaMutacao, tamanhoPopulacao, numeroGeracoes,
-                tamanhoTorneio, operadorMutacao, operadorCruzamento, metodoSelecao);
+                tamanhoTorneio, numeroPontosCruzamento, taxaTrocaSegmento,
+                operadorMutacao, operadorCruzamento, metodoSelecao);
     }
 
 }

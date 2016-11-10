@@ -19,11 +19,12 @@ public class Solucao implements Comparable<Solucao> {
             Tabuleiro t = Tabuleiro.novoAleatorio();
             pontuacoes[i] = Simulacao.pontuacaoNoTabuleiro(cromossomo, t);
         }
+
         return media(pontuacoes);
     }
 
     private static double media(int[] pontuacoes) {
-        return Arrays.stream(pontuacoes).sum() / (double) pontuacoes.length;
+        return Arrays.stream(pontuacoes).average().getAsDouble();
     }
 
     @Override

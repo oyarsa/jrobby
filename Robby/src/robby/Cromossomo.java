@@ -1,5 +1,7 @@
 package robby;
 
+import java.util.Arrays;
+
 public class Cromossomo {
 
     public static final int TAMANHO = 243;
@@ -20,5 +22,9 @@ public class Cromossomo {
 
     public void set(int i, int valor) {
         this.genes[i] = valor;
+    }
+
+    public void print() {
+        System.out.println(Arrays.toString(this.genes));
     }
 }
