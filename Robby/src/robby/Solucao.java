@@ -2,15 +2,15 @@ package robby;
 
 public class Solucao implements Comparable<Solucao> {
 
-    private final int[] cromossomo;
+    private final Cromossomo cromossomo;
     private final double fo;
 
-    public Solucao(int[] cromossomo) {
+    public Solucao(Cromossomo cromossomo) {
         this.cromossomo = cromossomo;
         this.fo = calcularFo(cromossomo);
     }
 
-    private static double calcularFo(int[] cromossomo) {
+    private static double calcularFo(Cromossomo cromossomo) {
         int[] pontuacoes = new int[Definicoes.NUMERO_SESSOES];
 
         for (int i = 0; i < Definicoes.NUMERO_SESSOES; i++) {
@@ -40,7 +40,7 @@ public class Solucao implements Comparable<Solucao> {
         return 0;
     }
 
-    public int[] getCromossomo() {
+    public Cromossomo getCromossomo() {
         return cromossomo;
     }
 
@@ -50,8 +50,8 @@ public class Solucao implements Comparable<Solucao> {
 
     public String getCromossomoStr() {
         StringBuilder str = new StringBuilder();
-        for (int i : this.cromossomo) {
-            str.append(i);
+        for (int i = 0; i < Cromossomo.TAMANHO; i++) {
+            str.append(this.cromossomo.get(i));
         }
         return str.toString();
     }

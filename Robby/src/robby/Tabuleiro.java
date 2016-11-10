@@ -4,25 +4,27 @@ import java.util.Random;
 
 public class Tabuleiro {
 
+    private static final int TAMANHO = 12;
+
     private final int[][] grid;
 
     private Tabuleiro() {
-        grid = new int[Definicoes.TAMANHO_GRID][Definicoes.TAMANHO_GRID];
+        grid = new int[TAMANHO][TAMANHO];
     }
 
     public static Tabuleiro novoAleatorio() {
         Tabuleiro novo = new Tabuleiro();
         Random rng = new Random();
 
-        for (int i = 0; i < Definicoes.TAMANHO_GRID; i++) {
-            novo.grid[0][i] = Definicoes.PAREDE;
-            novo.grid[i][0] = Definicoes.PAREDE;
-            novo.grid[i][Definicoes.TAMANHO_GRID - 1] = Definicoes.PAREDE;
-            novo.grid[Definicoes.TAMANHO_GRID - 1][i] = Definicoes.PAREDE;
+        for (int i = 0; i < TAMANHO; i++) {
+            novo.grid[0][i] = Conteudos.PAREDE;
+            novo.grid[i][0] = Conteudos.PAREDE;
+            novo.grid[i][TAMANHO - 1] = Conteudos.PAREDE;
+            novo.grid[TAMANHO - 1][i] = Conteudos.PAREDE;
         }
 
-        for (int i = 1; i < Definicoes.TAMANHO_GRID - 1; i++) {
-            for (int j = 1; j < Definicoes.TAMANHO_GRID - 1; j++) {
+        for (int i = 1; i < TAMANHO - 1; i++) {
+            for (int j = 1; j < TAMANHO - 1; j++) {
                 novo.grid[i][j] = rng.nextDouble() <= 0.5 ? 1 : 0;
             }
         }
@@ -35,8 +37,8 @@ public class Tabuleiro {
     }
 
     public void printTabuleiro() {
-        for (int i = 0; i < Definicoes.TAMANHO_GRID; i++) {
-            for (int j = 0; j < Definicoes.TAMANHO_GRID; j++) {
+        for (int i = 0; i < TAMANHO; i++) {
+            for (int j = 0; j < TAMANHO; j++) {
                 System.out.print("" + this.grid[i][j] + " ");
             }
             System.out.println("");
