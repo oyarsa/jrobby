@@ -16,13 +16,12 @@ public class Robby {
     }
 
     private static void executarAg() {
-        int n = 500;
         AGBuilder agb = new AGBuilder()
-                .setTaxaCruzamento(0.95)
+                .setTaxaCruzamento(0.99)
                 .setTamanhoTorneio(4)
                 .setMetodoSelecao(AG.Selecao.TORNEIO)
                 .setNumeroPontosCruzamento(4)
-                .setNumeroGeracoes(n);
+                .setNumeroGeracoes(500);
 
         Cronometro c = new Cronometro();
 

@@ -31,6 +31,7 @@ public class AG {
     private final int tamanhoTorneio;
     private final int numeroPontosCruzamento;
     private final double taxaTrocaSegmento;
+    private final int maximoIteracoesSemMelhoria;
     private final Mutacao operadorMutacao;
     private final Cruzamento operadorCruzamento;
     private final Selecao metodoSelecao;
@@ -38,8 +39,9 @@ public class AG {
 
     public AG(double taxaCruzamento, double taxaMutacao, int tamanhoPopulacao,
             int numeroGeracoes, int tamanhoTorneio, int numeroPontosCruzamento,
-            double taxaTrocaSegmento, Mutacao operadorMutacao,
-            Cruzamento operadorCruzamento, Selecao metodoSelecao) {
+            double taxaTrocaSegmento, int maximoIteracoesSemMelhoria,
+            Mutacao operadorMutacao, Cruzamento operadorCruzamento, Selecao metodoSelecao) {
+
         this.taxaMutacao = taxaMutacao;
         this.tamanhoPopulacao = tamanhoPopulacao;
         this.numeroGeracoes = numeroGeracoes;
@@ -49,6 +51,7 @@ public class AG {
         this.tamanhoTorneio = tamanhoTorneio;
         this.numeroPontosCruzamento = numeroPontosCruzamento;
         this.taxaTrocaSegmento = taxaTrocaSegmento;
+        this.maximoIteracoesSemMelhoria = maximoIteracoesSemMelhoria;
 
         this.operadorMutacao = operadorMutacao;
         this.operadorCruzamento = operadorCruzamento;
@@ -56,7 +59,9 @@ public class AG {
     }
 
     public Solucao resolver() {
-        Solucao[] populacao = avaliar(gerarPopulacaoAleatoria());
+        Solucao[] populacao = gerarIndividuosAleatorios(this.tamanhoPopulacao);
+        int iteracoesSemMelhoria = 0;
+        double melhorFo = populacao[0].getFo();
 
         for (int i = 0; i < numeroGeracoes; i++) {
             Solucao[][] pais = selecionar(populacao);
@@ -65,17 +70,38 @@ public class AG {
             Solucao[] avaliados = avaliar(filhos);
             populacao = proximaGeracao(populacao, avaliados);
             //System.out.println("Geracao " + (i + 1) + " FO: " + populacao[0].getFo());
+
+            if (populacao[0].getFo() > melhorFo) {
+                melhorFo = populacao[0].getFo();
+                iteracoesSemMelhoria = 0;
+            } else {
+                iteracoesSemMelhoria++;
+            }
+
+            if (iteracoesSemMelhoria == this.maximoIteracoesSemMelhoria) {
+                perturbarPopulacao(populacao);
+                iteracoesSemMelhoria = 0;
+            }
         }
 
         return populacao[0];
     }
 
-    private Cromossomo[] gerarPopulacaoAleatoria() {
-        Cromossomo[] pop = new Cromossomo[this.tamanhoPopulacao];
-        for (int i = 0; i < this.tamanhoPopulacao; i++) {
+    private void perturbarPopulacao(Solucao[] populacao) {
+        int n = (int) 0.2 * this.tamanhoPopulacao;
+        Solucao[] perturbacoes = gerarIndividuosAleatorios(n);
+
+        for (int i = 0; i < n; i++) {
+            populacao[i + this.tamanhoPopulacao - n] = perturbacoes[i];
+        }
+    }
+
+    private Solucao[] gerarIndividuosAleatorios(int numIndividuos) {
+        Cromossomo[] pop = new Cromossomo[numIndividuos];
+        for (int i = 0; i < pop.length; i++) {
             pop[i] = this.gerarSolucaoAleatoria();
         }
-        return pop;
+        return avaliar(pop);
     }
 
     private Solucao[][] selecaoTorneio(Solucao[] populacao) {

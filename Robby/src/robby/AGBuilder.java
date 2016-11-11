@@ -9,6 +9,7 @@ public class AGBuilder {
     private int tamanhoTorneio = 4;
     private int numeroPontosCruzamento = 2;
     private double taxaTrocaSegmento = 0.2;
+    private int maximoIteracoesSemMelhoria = 50;
     private AG.Mutacao operadorMutacao = AG.Mutacao.VIZINHANCA;
     private AG.Cruzamento operadorCruzamento = AG.Cruzamento.UM_PONTO;
     private AG.Selecao metodoSelecao = AG.Selecao.TORNEIO;
@@ -66,10 +67,16 @@ public class AGBuilder {
         return this;
     }
 
+    public AGBuilder setMaximoIteracoesSemMelhoria(int maximoIteracoesSemMelhoria) {
+        this.maximoIteracoesSemMelhoria = maximoIteracoesSemMelhoria;
+        return this;
+    }
+
     public AG createAG() {
         return new AG(taxaCruzamento, taxaMutacao, tamanhoPopulacao, numeroGeracoes,
                 tamanhoTorneio, numeroPontosCruzamento, taxaTrocaSegmento,
-                operadorMutacao, operadorCruzamento, metodoSelecao);
+                maximoIteracoesSemMelhoria, operadorMutacao, operadorCruzamento,
+                metodoSelecao);
     }
 
 }
