@@ -30,7 +30,7 @@ public class Robby {
         System.out.println("FO: " + s.getFo());
         System.out.println("Cromossomo: " + s.getCromossomoStr());
 
-        Solucao s2 = agb.setOperadorCruzamento(AG.Cruzamento.UNIFORME).createAG().resolver();
+        /*Solucao s2 = agb.setOperadorCruzamento(AG.Cruzamento.UNIFORME).createAG().resolver();
         System.out.println("\nUniforme");
         System.out.println("FO: " + s2.getFo());
         System.out.println("Cromossomo: " + s2.getCromossomoStr());
@@ -38,8 +38,7 @@ public class Robby {
         Solucao s3 = agb.setOperadorCruzamento(AG.Cruzamento.SEGMENTADO).createAG().resolver();
         System.out.println("\nSegmentado");
         System.out.println("FO: " + s3.getFo());
-        System.out.println("Cromossomo: " + s3.getCromossomoStr());
-
+        System.out.println("Cromossomo: " + s3.getCromossomoStr());*/
         System.out.println("\nTempo: " + c.tempo());
     }
 

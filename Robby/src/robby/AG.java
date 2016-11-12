@@ -64,12 +64,13 @@ public class AG {
         double melhorFo = populacao[0].getFo();
 
         for (int i = 0; i < numeroGeracoes; i++) {
+            //System.out.println("Geracao " + (i + 1) + " FO: " + populacao[0].getFo());
+
             Solucao[][] pais = selecionar(populacao);
             Cromossomo[] filhos = cruzamento(pais);
             mutacao(filhos);
             Solucao[] avaliados = avaliar(filhos);
             populacao = proximaGeracao(populacao, avaliados);
-            //System.out.println("Geracao " + (i + 1) + " FO: " + populacao[0].getFo());
 
             if (populacao[0].getFo() > melhorFo) {
                 melhorFo = populacao[0].getFo();
@@ -88,7 +89,7 @@ public class AG {
     }
 
     private void perturbarPopulacao(Solucao[] populacao) {
-        int n = (int) 0.2 * this.tamanhoPopulacao;
+        int n = (int) 0.8 * this.tamanhoPopulacao;
         Solucao[] perturbacoes = gerarIndividuosAleatorios(n);
 
         for (int i = 0; i < n; i++) {

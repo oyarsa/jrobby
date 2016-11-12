@@ -1,7 +1,5 @@
 package robby;
 
-import java.util.Arrays;
-
 public class Solucao implements Comparable<Solucao> {
 
     private final Cromossomo cromossomo;
@@ -17,14 +15,18 @@ public class Solucao implements Comparable<Solucao> {
 
         for (int i = 0; i < Definicoes.NUMERO_SESSOES; i++) {
             Tabuleiro t = Tabuleiro.novoAleatorio();
-            pontuacoes[i] = Simulacao.pontuacaoNoTabuleiro(cromossomo, t);
+            pontuacoes[i] = new Simulacao().executar(cromossomo);
         }
 
         return media(pontuacoes);
     }
 
     private static double media(int[] pontuacoes) {
-        return Arrays.stream(pontuacoes).average().getAsDouble();
+        double soma = 0.0;
+        for (int x : pontuacoes) {
+            soma += x;
+        }
+        return soma / pontuacoes.length;
     }
 
     @Override

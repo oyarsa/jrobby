@@ -9,7 +9,7 @@ public class AGBuilder {
     private int tamanhoTorneio = 4;
     private int numeroPontosCruzamento = 2;
     private double taxaTrocaSegmento = 0.2;
-    private int maximoIteracoesSemMelhoria = 50;
+    private int maximoIteracoesSemMelhoria = 10;
     private AG.Mutacao operadorMutacao = AG.Mutacao.VIZINHANCA;
     private AG.Cruzamento operadorCruzamento = AG.Cruzamento.UM_PONTO;
     private AG.Selecao metodoSelecao = AG.Selecao.TORNEIO;

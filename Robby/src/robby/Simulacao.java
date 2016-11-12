@@ -1,6 +1,6 @@
 package robby;
 
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class Simulacao {
 
@@ -8,119 +8,107 @@ public class Simulacao {
     private final static int PENALIDADE_PAREDE = 5;
     private final static int PONTUACAO_PEGAR = 10;
 
-    private static final Random rng = new Random();
+    private final Tabuleiro tabuleiro;
+    private int posicaoX;
+    private int posicaoY;
+    private int pontuacao;
 
-    private static int base3ToBase10(int[] b3) {
-        int[] potenciasDe3 = new int[]{81, 27, 9, 3, 1};
-        int b10 = 0;
-
-        for (int i = 0; i < b3.length; i++) {
-            b10 += b3[i] * potenciasDe3[i];
-        }
-
-        return b10;
+    public Simulacao() {
+        this.tabuleiro = Tabuleiro.novoAleatorio();
+        this.posicaoX = 1;
+        this.posicaoY = 1;
+        this.pontuacao = 0;
     }
 
-    private static class Estado {
+    private int getCenario() {
+        int norte = tabuleiro.at(posicaoX, posicaoY - 1);
+        int sul = tabuleiro.at(posicaoX, posicaoY + 1);
+        int leste = tabuleiro.at(posicaoX + 1, posicaoY);
+        int oeste = tabuleiro.at(posicaoX - 1, posicaoY);
+        int atual = tabuleiro.at(posicaoX, posicaoY);
 
-        final int x;
-        final int y;
-        final int pontuacao;
-
-        public Estado(int x, int y, int pontuacao) {
-            this.x = x;
-            this.y = y;
-            this.pontuacao = pontuacao;
-        }
+        return 81 * norte + 27 * sul + 9 * leste + 3 * oeste + atual;
     }
 
-    private static int getCenario(int x, int y, Tabuleiro t) {
-        int norte = t.at(x, y - 1);
-        int sul = t.at(x, y + 1);
-        int leste = t.at(x + 1, y);
-        int oeste = t.at(x - 1, y);
-        int atual = t.at(x, y);
-
-        return base3ToBase10(new int[]{norte, sul, leste, oeste, atual});
-    }
-
-    public static int pontuacaoNoTabuleiro(Cromossomo cromossomo, Tabuleiro t) {
-        Estado atual = new Estado(1, 1, 0);
-
+    public int executar(Cromossomo cromossomo) {
         for (int i = 0; i < Definicoes.NUMERO_ACOES; i++) {
-            int cenario = getCenario(atual.x, atual.y, t);
+            int cenario = getCenario();
             int movimento = cromossomo.at(cenario);
-            atual = proximoEstado(atual, movimento, t);
+            proximoEstado(movimento);
         }
 
-        return atual.pontuacao;
+        return pontuacao;
     }
 
-    private static Estado moveNorte(Estado e, Tabuleiro t) {
-        if (t.at(e.x, e.y - 1) == Conteudos.PAREDE) {
-            return new Estado(e.x, e.y, e.pontuacao - PENALIDADE_PAREDE);
+    private void moveNorte() {
+        if (tabuleiro.at(posicaoX, posicaoY - 1) == Conteudos.PAREDE) {
+            pontuacao -= PENALIDADE_PAREDE;
         } else {
-            return new Estado(e.x, e.y - 1, e.pontuacao);
+            posicaoY--;
         }
     }
 
-    private static Estado moveSul(Estado e, Tabuleiro t) {
-        if (t.at(e.x, e.y + 1) == Conteudos.PAREDE) {
-            return new Estado(e.x, e.y, e.pontuacao - PENALIDADE_PAREDE);
+    private void moveSul() {
+        if (tabuleiro.at(posicaoX, posicaoY + 1) == Conteudos.PAREDE) {
+            pontuacao -= PENALIDADE_PAREDE;
         } else {
-            return new Estado(e.x, e.y + 1, e.pontuacao);
+            posicaoY++;
         }
     }
 
-    private static Estado moveLeste(Estado e, Tabuleiro t) {
-        if (t.at(e.x + 1, e.y) == Conteudos.PAREDE) {
-            return new Estado(e.x, e.y, e.pontuacao - PENALIDADE_PAREDE);
+    private void moveLeste() {
+        if (tabuleiro.at(posicaoX + 1, posicaoY) == Conteudos.PAREDE) {
+            pontuacao -= PENALIDADE_PAREDE;
         } else {
-            return new Estado(e.x + 1, e.y, e.pontuacao);
+            posicaoX++;
         }
     }
 
-    private static Estado moveOeste(Estado e, Tabuleiro t) {
-        if (t.at(e.x - 1, e.y) == Conteudos.PAREDE) {
-            return new Estado(e.x, e.y, e.pontuacao - PENALIDADE_PAREDE);
+    private void moveOeste() {
+        if (tabuleiro.at(posicaoX - 1, posicaoY) == Conteudos.PAREDE) {
+            pontuacao -= PENALIDADE_PAREDE;
         } else {
-            return new Estado(e.x - 1, e.y, e.pontuacao);
+            posicaoX--;
         }
     }
 
-    private static Estado pegaLata(Estado e, Tabuleiro t) {
-        if (t.at(e.x, e.y) == Conteudos.LATA) {
-            t.set(e.x, e.y, Conteudos.VAZIO);
-            return new Estado(e.x, e.y, e.pontuacao + PONTUACAO_PEGAR);
+    private void pegaLata() {
+        if (tabuleiro.at(posicaoX, posicaoY) == Conteudos.LATA) {
+            tabuleiro.set(posicaoX, posicaoY, Conteudos.VAZIO);
+            pontuacao += PONTUACAO_PEGAR;
         } else {
-            return new Estado(e.x, e.y, e.pontuacao - PENALIDADE_PEGAR);
+            pontuacao -= PENALIDADE_PEGAR;
         }
     }
 
-    private static Estado moveAleatorio(Estado e, Tabuleiro t) {
-        int movimento = rng.nextInt(4);
-        return proximoEstado(e, movimento, t);
+    private void moveAleatorio() {
+        int movimento = ThreadLocalRandom.current().nextInt(4);
+        proximoEstado(movimento);
     }
 
-    private static Estado proximoEstado(Estado e, int estrategia, Tabuleiro t) {
-        switch (estrategia) {
+    private void proximoEstado(int movimento) {
+        switch (movimento) {
             case Movimentos.MOVE_NORTE:
-                return moveNorte(e, t);
+                moveNorte();
+                break;
             case Movimentos.MOVE_SUL:
-                return moveSul(e, t);
+                moveSul();
+                break;
             case Movimentos.MOVE_LESTE:
-                return moveLeste(e, t);
+                moveLeste();
+                break;
             case Movimentos.MOVE_OESTE:
-                return moveOeste(e, t);
+                moveOeste();
+                break;
             case Movimentos.MOVE_ALEATORIO:
-                return moveAleatorio(e, t);
+                moveAleatorio();
+                break;
             case Movimentos.FICAR_PARADO:
-                return e;
+                break;
             case Movimentos.PEGAR_LATA:
-                return pegaLata(e, t);
-            default: ;
+                pegaLata();
+                break;
         }
-        return null;
     }
 
 }
