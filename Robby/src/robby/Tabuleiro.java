@@ -1,6 +1,6 @@
 package robby;
 
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class Tabuleiro {
 
@@ -14,7 +14,6 @@ public class Tabuleiro {
 
     public static Tabuleiro novoAleatorio() {
         Tabuleiro novo = new Tabuleiro();
-        Random rng = new Random();
 
         for (int i = 0; i < TAMANHO; i++) {
             novo.set(i, 0, Conteudos.PAREDE);
@@ -25,7 +24,8 @@ public class Tabuleiro {
 
         for (int i = 1; i < TAMANHO - 1; i++) {
             for (int j = 1; j < TAMANHO - 1; j++) {
-                novo.set(j, i, rng.nextDouble() <= 0.5 ? 1 : 0);
+                int conteudo = ThreadLocalRandom.current().nextDouble() <= 0.5 ? 1 : 0;
+                novo.set(j, i, conteudo);
             }
         }
 

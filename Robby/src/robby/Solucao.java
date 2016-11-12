@@ -14,7 +14,6 @@ public class Solucao implements Comparable<Solucao> {
         int[] pontuacoes = new int[Definicoes.NUMERO_SESSOES];
 
         for (int i = 0; i < Definicoes.NUMERO_SESSOES; i++) {
-            Tabuleiro t = Tabuleiro.novoAleatorio();
             pontuacoes[i] = new Simulacao().executar(cromossomo);
         }
 
