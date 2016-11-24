@@ -11,21 +11,13 @@ public class Solucao implements Comparable<Solucao> {
     }
 
     private static double calcularFo(Cromossomo cromossomo) {
-        int[] pontuacoes = new int[Definicoes.NUMERO_SESSOES];
+        double soma = 0.0;
 
         for (int i = 0; i < Definicoes.NUMERO_SESSOES; i++) {
-            pontuacoes[i] = new Simulacao().executar(cromossomo);
+            soma += new Simulacao().executar(cromossomo);
         }
 
-        return media(pontuacoes);
-    }
-
-    private static double media(int[] pontuacoes) {
-        double soma = 0.0;
-        for (int x : pontuacoes) {
-            soma += x;
-        }
-        return soma / pontuacoes.length;
+        return soma / Definicoes.NUMERO_SESSOES;
     }
 
     @Override
